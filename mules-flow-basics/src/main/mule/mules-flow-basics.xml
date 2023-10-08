@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4586fc4e-0055-428d-86d3-de6dc313362b" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="mules-flow-basicsFlow" doc:id="bfb76324-5674-41e7-84d4-dc80c9788670" >
+		<http:listener doc:name="Listener" doc:id="cd8fe1e9-7a81-4a29-9768-6a5ffa2445d6" config-ref="HTTP_Listener_config" path="/basics"/>
+		<logger level="INFO" doc:name="flow start" doc:id="8a0f4d8f-4f94-45ad-80bb-352c9ef1a31e" />
+		<set-variable value="#[payload]" doc:name="Store payload" doc:id="7ac1b9fa-df93-48bd-a937-889b13b64f48" variableName="storeOriginalPayload"/>
+		<flow-ref doc:name="Flow Reference" doc:id="7dc6b9ca-88d1-47b7-aaf0-5c2ef2f23660" name="mules-flow-basicsSub_Flow"/>
+		<set-variable value="Sales" doc:name="Setting department value" doc:id="c30ebd44-2a57-4a89-a2fa-0c0125545bec" variableName="Department"/>
+		<ee:transform doc:name="Response Payload" doc:id="dce4ef5f-d514-4ace-8301-945d19bdcb81">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+//var ID = payload
+---
+{
+	"message": "Hi, " ++ vars.storeOriginalPayload.firstname ++ " your new cust ID is " ++ payload,
+	"assignedDepartment": vars.Department,
+	"yourOrg": attributes.queryParams.orgid
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="flow end" doc:id="bf1ad1f9-6b2e-4e45-aa95-4fe66842065d" />
+	</flow>
+	<sub-flow name="mules-flow-basicsSub_Flow" doc:id="85a066ff-214b-4987-b59d-5f18c3d51440" >
+		<set-payload value="#[5555555550000000000]" doc:name="data response" doc:id="f2743bc5-e231-4dfb-b406-134580ad69c8" />
+	</sub-flow>
+</mule>
